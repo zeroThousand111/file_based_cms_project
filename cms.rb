@@ -27,7 +27,7 @@ get "/:filename" do
     headers["Content-Type"] = "text/plain"
     File.read(file_path)
   else
-    session[:error] = "#{filename} does not exist."
+    session[:message] = "#{filename} does not exist."
     redirect "/"
   end
 end
