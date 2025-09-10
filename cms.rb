@@ -53,6 +53,10 @@ post "/create" do
     session[:message] = "A name is required."
     status 422
     erb :new
+  elsif File.extname(filename) == "" # or if filename has no extension
+    session[:message] = "A file extension is required."
+    status 422
+    erb :new
   else
     file_path = File.join(data_path, filename)
 
