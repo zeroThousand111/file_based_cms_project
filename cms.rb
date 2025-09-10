@@ -16,7 +16,7 @@ def data_path
   end
 end
 
-root = File.expand_path("..", __FILE__)
+# root = File.expand_path("..", __FILE__)
 
 def render_markdown(text)
   markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
@@ -42,6 +42,27 @@ get "/" do
   erb :index
 end
 
+get "/new" do
+  erb :new
+end
+
+post "/create" do
+  filename = params[:filename].to_s
+
+  if filename.size == 0
+    session[:message] = "A name is required."
+    status 422
+    erb :new
+  else
+    file_path = File.join(data_path, filename)
+
+    File.write(file_path, "")
+    session[:message] = "#{params[:filename]} has been created."
+
+    redirect "/"
+  end
+end
+
 get "/:filename" do
   file_path = File.join(data_path, params[:filename])
 
@@ -49,6 +70,7 @@ get "/:filename" do
     load_file_content(file_path)
   else
     session[:message] = "#{params[:filename]} does not exist."
+    422
     redirect "/"
   end
 end

@@ -1,8 +1,4 @@
 <!-- views/index.erb -->
-<% if session[:message] %>
-  <p class="message"><%= session.delete(:message) %></p>
-<% end %>
-
 <ul>
   <% @files.each do |file| %>
     <li>
@@ -11,3 +7,7 @@
     </li>
   <% end %>
 </ul>
+
+<p>
+  <a href="/new"> New Document </a>
+</p>
