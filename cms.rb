@@ -74,7 +74,7 @@ get "/:filename" do
     load_file_content(file_path)
   else
     session[:message] = "#{params[:filename]} does not exist."
-    422
+    status 422
     redirect "/"
   end
 end
@@ -94,5 +94,14 @@ post "/:filename" do
   File.write(file_path, params[:content])
 
   session[:message] = "#{params[:filename]} has been updated."
+  redirect "/"
+end
+
+post "/:filename/delete" do
+  file_path = File.join(data_path, params[:filename])
+
+  File.delete(file_path)
+  session[:message] = "#{params[:filename]} has been deleted."
+
   redirect "/"
 end
