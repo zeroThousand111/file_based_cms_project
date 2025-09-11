@@ -16,8 +16,6 @@ def data_path
   end
 end
 
-# root = File.expand_path("..", __FILE__)
-
 def render_markdown(text)
   markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
   markdown.render(text)
@@ -32,6 +30,28 @@ def load_file_content(path)
   when ".md"
     erb render_markdown(content)
   end
+end
+
+get "/users/signin" do
+  erb :signin
+end
+
+post "/users/signin" do
+  if params[:username] == "admin" && params[:password] == "secret"
+    session[:username] = params[:username]
+    session[:message] = "Welcome!"
+    redirect "/"
+  else
+    session[:message] = "Invalid credentials"
+    status 422
+    erb :signin
+  end
+end
+
+post "/users/signout" do
+  session.delete(:username)
+  session[:message] = "You have been signed out."
+  redirect "/"
 end
 
 get "/" do
