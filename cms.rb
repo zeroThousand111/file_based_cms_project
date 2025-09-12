@@ -106,6 +106,7 @@ post "/create" do
   require_signed_in_user
 
   filename = params[:filename].to_s
+  supported_extensions = [".txt", ".md"]
 
   if filename.size == 0
     session[:message] = "A name is required."
@@ -115,12 +116,14 @@ post "/create" do
     session[:message] = "A file extension is required."
     status 422
     erb :new
+  elsif !supported_extensions.include?(File.extname(filename)) # extension not supported
+    session[:message] = "The #{File.extname(filename)} extension is not currently supported."
+    status 422
+    erb :new
   else
     file_path = File.join(data_path, filename)
-
     File.write(file_path, "")
     session[:message] = "#{params[:filename]} has been created."
-
     redirect "/"
   end
 end
