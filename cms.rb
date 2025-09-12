@@ -3,6 +3,7 @@ require "sinatra/reloader" if development?
 require "tilt/erubi"
 require "redcarpet"
 require "psych"
+require "bcrypt"
 
 configure do
   enable :sessions
@@ -33,6 +34,17 @@ def load_file_content(path)
   end
 end
 
+def valid_credentials?(username, password)
+  credentials = load_user_credentials
+
+  if credentials.key?(username)
+    bcrypt_password = BCrypt::Password.new(credentials[username])
+    bcrypt_password == password
+  else
+    false
+  end
+end
+
 def user_signed_in?
   session.key?(:username)
 end
@@ -58,10 +70,9 @@ get "/users/signin" do
 end
 
 post "/users/signin" do
-  credentials = load_user_credentials
   username = params[:username]
 
-  if credentials.key?(username) && credentials[username] == params[:password]
+  if valid_credentials?(username, params[:password])
     session[:username] = username
     session[:message] = "Welcome!"
     redirect "/"
