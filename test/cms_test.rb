@@ -151,6 +151,12 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "A name is required"
   end
 
+  def test_create_new_document_with_unsupported_file_extension
+    post "/create", {filename: "test.xyz"}, admin_session
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "The .xyz extension is not currently supported."
+  end
+
   def test_deleting_document
     create_document("test.txt")
 
