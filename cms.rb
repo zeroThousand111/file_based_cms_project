@@ -5,6 +5,8 @@ require "redcarpet"
 require "psych"
 require "bcrypt"
 
+SUPPORTED_EXTENSIONS = [".txt", ".md"].freeze
+
 configure do
   enable :sessions
   set :session_secret, SecureRandom.hex(32)
@@ -54,6 +56,14 @@ def require_signed_in_user
     session[:message] = "You must be signed in to do that."
     redirect "/"
   end
+end
+
+def filename_already_exists?(new_filename)
+  pattern = File.join(data_path, "*")
+  @files = Dir.glob(pattern).map do |path|
+    File.basename(path)
+  end
+  @files.include?(new_filename)
 end
 
 def load_user_credentials
@@ -116,7 +126,7 @@ post "/create" do
     session[:message] = "A file extension is required."
     status 422
     erb :new
-  elsif !supported_extensions.include?(File.extname(filename)) # extension not supported
+  elsif !SUPPORTED_EXTENSIONS.include?(File.extname(filename)) # extension not supported
     session[:message] = "The #{File.extname(filename)} extension is not currently supported."
     status 422
     erb :new
@@ -181,14 +191,22 @@ post "/:filename/copy" do
   extension = File.extname(original_file_path)
   basename = File.basename(original_file_path, extension)
   new_filename = "#{basename}_copy#{extension}"
-  # get file path of duplicate document
-  new_file_path = File.join(data_path, new_filename)
-  # get content of original document
-  content = File.read(original_file_path)
-  # duplicate file with contents of original file???
-  File.write(new_file_path, content)
-  # session message
-  session[:message] = "#{params[:filename]} has been duplicated as #{new_filename}."
-  # redirect back to index
-  redirect "/"
+
+  # check to see if new_filename already exists and return message if it does, halting the duplication process
+  if filename_already_exists?(new_filename)
+    session[:message] = "Sorry, #{new_filename} already exists."
+    status 422
+    erb :index
+  else
+    # get file path of duplicate document
+    new_file_path = File.join(data_path, new_filename)
+    # get content of original document
+    content = File.read(original_file_path)
+    # duplicate file with contents of original file???
+    File.write(new_file_path, content)
+    # session message
+    session[:message] = "#{params[:filename]} has been duplicated as #{new_filename}."
+    # redirect back to index
+    redirect "/"
+  end
 end
