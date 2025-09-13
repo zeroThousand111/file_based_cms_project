@@ -213,7 +213,24 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "Sign In"
   end
 
-  
+  def test_duplicating_file_signed_in
+    # skip
+    #login as admin and create file
+    post "/create", {filename: "test.txt"}, admin_session
+    # duplicate file
+    post "/:filename/copy", {filename: "test.txt"}, admin_session
+    
+    # check for what?
+    assert_equal 302, last_response.status
+    assert_equal "test.txt has been duplicated as test_copy.txt.", session[:message]
+  end
+
+  def test_duplicating_file_signed_out
+    post "/:filename/copy", {filename: "test_copy.txt"}
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:message]
+  end
 
 
 end

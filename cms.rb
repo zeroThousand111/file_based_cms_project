@@ -178,7 +178,9 @@ post "/:filename/copy" do
   # get file path of original document
   original_file_path = File.join(data_path, params[:filename])
   # initialise filename of duplicate file
-  new_filename = "#{params[:filename].to_s}_copy"
+  extension = File.extname(original_file_path)
+  basename = File.basename(original_file_path, extension)
+  new_filename = "#{basename}_copy#{extension}"
   # get file path of duplicate document
   new_file_path = File.join(data_path, new_filename)
   # get content of original document
