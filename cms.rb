@@ -172,3 +172,21 @@ post "/:filename/delete" do
 
   redirect "/"
 end
+
+post "/:filename/copy" do
+  require_signed_in_user
+  # get file path of original document
+  original_file_path = File.join(data_path, params[:filename])
+  # initialise filename of duplicate file
+  new_filename = "#{params[:filename].to_s}_copy"
+  # get file path of duplicate document
+  new_file_path = File.join(data_path, new_filename)
+  # get content of original document
+  content = File.read(original_file_path)
+  # duplicate file with contents of original file???
+  File.write(new_file_path, content)
+  # session message
+  session[:message] = "#{params[:filename]} has been duplicated as #{new_filename}."
+  # redirect back to index
+  redirect "/"
+end
