@@ -195,8 +195,7 @@ post "/:filename/copy" do
   # check to see if new_filename already exists and return message if it does, halting the duplication process
   if filename_already_exists?(new_filename)
     session[:message] = "Sorry, #{new_filename} already exists."
-    status 422
-    erb :index
+    redirect "/"
   else
     # get file path of duplicate document
     new_file_path = File.join(data_path, new_filename)

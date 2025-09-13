@@ -237,7 +237,7 @@ class CMSTest < Minitest::Test
     # attempt to duplicate text.txt file
     post "/test.txt/copy", {filename: "test.txt"}, admin_session
     
-    assert_equal 422, last_response.status
+    assert_equal 302, last_response.status
     assert_equal "Sorry, test_copy.txt already exists.", session[:message]
   end
 end
